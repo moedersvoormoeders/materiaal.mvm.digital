@@ -1,5 +1,5 @@
 <template id="login">
-  <div style="background: royalblue">
+  <div class="bg">
   <div class="container vertical-center">
     <div class="container">
       <div class="row justify-content-center">
@@ -82,7 +82,7 @@ export default {
 
 
 <style scoped>
-.container {
+.bg {
   background-image: url(/images/moeders.jpg);
   background-repeat:no-repeat;
   background-position:center center;
@@ -103,7 +103,7 @@ export default {
 }
 
 #logo {
-  max-width: 50%;
+  max-width: 35%;
   height: auto;
 }
 
