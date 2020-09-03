@@ -72,22 +72,22 @@
       <div class="row">
         <div class="col-12 mx-auto">
           <div id="accordion" class="accordion">
-            <div v-for="materiaalType in materiaalTypes" v-bind:key="materiaalType.naam">
-              <div v-bind:id="materiaalType.naam+'heading'" class="card-header bg-white shadow-sm border-0">
+            <div v-for="materiaalType in materiaalTypes" v-bind:key="idSafeName(materiaalType)">
+              <div v-bind:id="idSafeName(materiaalType)+'heading'" class="card-header bg-white shadow-sm border-0">
                 <h6 class="mb-0 font-weight-bold">
                   <a
                     href="#"
                     data-toggle="collapse"
-                    v-bind:data-target="'#'+materiaalType.naam"
+                    v-bind:data-target="'#'+idSafeName(materiaalType)"
                     aria-expanded="false"
-                    v-bind:aria-controls="materiaalType.naam"
+                    v-bind:aria-controls="idSafeName(materiaalType)"
                     class="d-block position-relative text-dark text-uppercase collapsible-link py-2"
                   >{{ materiaalType.naam }}</a>
                 </h6>
               </div>
               <div
-                v-bind:id="materiaalType.naam"
-                v-bind:aria-labelledby="materiaalType.naam"
+                v-bind:id="idSafeName(materiaalType)"
+                v-bind:aria-labelledby="idSafeName(materiaalType)"
                 data-parent="#accordion"
                 class="collapse"
               >
@@ -160,7 +160,7 @@
                           <button
                             type="button"
                             class="btn btn-outline-danger"
-                            v-on:click="removeRow(materiaalType.id, item)"
+                            v-on:click="removeRow(item)"
                           >
                             <i class="fad fa-trash" />
                           </button>
@@ -210,6 +210,9 @@ export default {
     }
   },
   methods: {
+    idSafeName: function(cat) {
+      return cat.naam.replace(" ", "")
+    },
     materiaalVoorCategorie: function(catNaam) {
       return this.materiaal.filter(item => item.object.categorie.naam == catNaam)
     },
@@ -232,8 +235,8 @@ export default {
         print: true,
       })
     },
-    removeRow: function() {
-      // TODO
+    removeRow: function(obj) {
+      this.materiaal = this.materiaal.filter(aObj => aObj != obj)
     },
     hasChanges: function() {
       if (JSON.stringify({gekregen: this.materiaal, opmerking: this.opmerking}) != this.originalData) {
@@ -270,8 +273,6 @@ export default {
     const klantResponse =  await klantenService.lookUpNumber(this.id);
     this.contacten = await klantenService.getContacten(this.id);
     const materiaalOpties = await materiaalService.getObjectOptions();
-
-    // TODO: kinderen
 
     for (let optie of materiaalOpties) {
       if (!this.materiaalTypes[optie.categorie.naam]) {
