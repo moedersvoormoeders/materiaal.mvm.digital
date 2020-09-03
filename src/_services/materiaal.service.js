@@ -12,6 +12,17 @@ const lookUpNumber = (mvmNummer) => {
 
 }
 
+const getObjectOptions = () => {
+    const requestOptions = {
+        method: 'GET',
+        headers: authHeader()
+    };
+
+    return fetch(`${config.apiUrl}/v1/materiaal/objects`, requestOptions).then(handleResponse);
+
+}
+
+
 const handleResponse = (response) => {
     return response.text().then(text => {
         const data = text && JSON.parse(text);
@@ -32,4 +43,5 @@ const handleResponse = (response) => {
 
 export const materiaalService = {
     lookUpNumber,
+    getObjectOptions,
 };

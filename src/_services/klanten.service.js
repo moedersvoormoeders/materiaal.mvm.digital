@@ -12,6 +12,16 @@ const lookUpNumber = (mvmNummer) => {
 
 }
 
+const getContacten = (mvmNummer) => {
+    const requestOptions = {
+        method: 'GET',
+        headers: authHeader()
+    };
+
+    return fetch(`${config.apiUrl}/zoho/contacten/?mvmNummer=${mvmNummer}`, requestOptions).then(handleResponse);
+
+}
+
 const handleResponse = (response) => {
     return response.text().then(text => {
         const data = text && JSON.parse(text);
@@ -32,4 +42,5 @@ const handleResponse = (response) => {
 
 export const klantenService = {
     lookUpNumber,
+    getContacten,
 };

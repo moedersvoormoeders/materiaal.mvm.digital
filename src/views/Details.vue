@@ -22,6 +22,14 @@
           <span class="float-right">
             <button
               type="button"
+              class="btn btn-info btn-lg"
+              v-on:click="print()"
+            >
+              <i class="far fa-print" /> Print
+            </button>
+            &nbsp;
+            <button
+              type="button"
               class="btn btn-success btn-lg"
               v-on:click="save()"
               :disabled="saving || !hasChanges()"
@@ -64,22 +72,22 @@
       <div class="row">
         <div class="col-12 mx-auto">
           <div id="accordion" class="accordion">
-            <b-card v-for="materiaalType in materiaalTypes" v-bind:key="materiaalType.id">
-              <div v-bind:id="materiaalType.id+'heading'" class="card-header bg-white shadow-sm border-0">
+            <div v-for="materiaalType in materiaalTypes" v-bind:key="materiaalType.naam">
+              <div v-bind:id="materiaalType.naam+'heading'" class="card-header bg-white shadow-sm border-0">
                 <h6 class="mb-0 font-weight-bold">
                   <a
                     href="#"
                     data-toggle="collapse"
-                    v-bind:data-target="'#'+materiaalType.id"
+                    v-bind:data-target="'#'+materiaalType.naam"
                     aria-expanded="false"
-                    v-bind:aria-controls="materiaalType.id"
+                    v-bind:aria-controls="materiaalType.naam"
                     class="d-block position-relative text-dark text-uppercase collapsible-link py-2"
                   >{{ materiaalType.naam }}</a>
                 </h6>
               </div>
               <div
-                v-bind:id="materiaalType.id"
-                v-bind:aria-labelledby="materiaalType.id"
+                v-bind:id="materiaalType.naam"
+                v-bind:aria-labelledby="materiaalType.naam"
                 data-parent="#accordion"
                 class="collapse"
               >
@@ -87,8 +95,8 @@
                   <div class="row">
                     <h3 class="col-12">
                       <span class="float-right">
-                        <button type="button" class="btn btn-success" v-on:click="addRow(materiaalType.id)">
-                          <font-awesome-icon :icon="['fas', 'plus-square']" /> Rij Toevoegen
+                        <button type="button" class="btn btn-success" v-on:click="addRow(materiaalType.ID, materiaalType.naam)">
+                          <i class="fas fa-plus-square" /> Rij Toevoegen
                         </button>
                       </span>
                     </h3>
@@ -100,20 +108,26 @@
                       <col v-if="materiaalType.perKind"/>
                       <col/>
                       <col/>
+                      <col v-if="materiaalType.opMaat"/>
                       <col/>
                     </colgroup>
                     <thead class="thead-dark">
                       <tr>
+                        <th>Print</th>
                         <th>Datum</th>
                         <th>Aantal</th>
                         <th v-if="materiaalType.perKind">Kind</th>
                         <th>Item</th>
+                        <th v-if="materiaalType.opMaat">Maat</th>
                         <th>Opmerking</th>
                         <th></th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="item in materiaal[materiaalType.id]" v-bind:key="item.id">
+                      <tr v-for="item in materiaalVoorCategorie(materiaalType.naam)" v-bind:key="item.ID">
+                        <td style="width: 50px;">
+                          <input type="checkbox" v-model="item.print" />
+                        </td>
                         <td style="width: 160px;">
                           <datepicker :format="'yyyy-MM-dd'" v-model="item.datum"></datepicker>
                         </td>
@@ -121,11 +135,19 @@
                           <input v-model="item.aantal" class="form-control" type="number" min="1" style="width: 60px;"/>
                         </td>
                         <td v-if="materiaalType.perKind">
-                          <multiselect v-model="item.kind" :options="getKinderen()" placeholder="Selecteer een"></multiselect>
+                          <multiselect v-model="item.ontvanger" :options="getKinderen()" placeholder="Selecteer een"></multiselect>
                         </td>
                         <td>
-                          <multiselect v-model="item.naam" :options="materiaalType.opties" placeholder="Selecteer een"></multiselect>
+                          <multiselect v-model="item.object.naam" :options="materiaalType.opties" placeholder="Selecteer een"></multiselect>
                         </td>
+                         <td v-if="materiaalType.opMaat">
+                          <input
+                            v-model="item.maat"
+                            class="form-control"
+                            placeholder="Maat"
+                            style="width: 170px;"
+                          />
+                        </td>  
                         <td>
                           <input
                             v-model="item.opmerking"
@@ -140,7 +162,7 @@
                             class="btn btn-outline-danger"
                             v-on:click="removeRow(materiaalType.id, item)"
                           >
-                            <font-awesome-icon :icon="['fad', 'trash']" />
+                            <i class="fad fa-trash" />
                           </button>
                         </td>
                       </tr>
@@ -148,7 +170,7 @@
                   </table>
                 </div>
               </div>
-            </b-card>
+            </div>
           </div>
         </div>
       </div>
@@ -175,45 +197,11 @@ export default {
       loading: true,
       originalData: "", //JSON stored here
       saving: false,
-      materiaal: {
-        kleding: [],
-        speelgoed: [],
-        baby: [],
-        moeder: [],
-      },
+      materiaal: [],
       opmerking: "",
-      materiaalTypes: {
-        kleding: {
-          naam: "Kleding",
-          id: "kleding",
-          perKind: true,
-          opties: [
-            "Pakket Zomer",
-            "Pakket Winter",
-            "Schoenen Zomer",
-            "Schoenen Winter",
-            "Uniform",
-          ]
-        },
-        speelgoed: {
-          naam: "Speelgoed",
-          id: "speelgoed",
-          perKind: true,
-          opties: ["Verjaardag", "Mini cadeau", "Carnaval", "Extra"]
-        },
-        baby: {
-          naam: "Baby materiaal",
-          id: "baby",
-          perKind: false,
-          opties: ["die", "hebben", "echt", "veel", "materiaal"]
-        },
-        moeder: {
-          naam: "Voor Moeder",
-          id: "moeder",
-          perKind: false,
-          opties: ["Ziekenhuispakket", "Kindskorf", "Doopsuiker", "Zwangerschapskleding", "Gelegenheids outfit", "Winterjas", "Schoenen", "Kapsalon"]
-        }
-      }
+      info: {},
+      materiaalTypes: {},
+      contacten: [],
     };
   },
   computed: {
@@ -222,22 +210,27 @@ export default {
     }
   },
   methods: {
+    materiaalVoorCategorie: function(catNaam) {
+      return this.materiaal.filter(item => item.object.categorie.naam == catNaam)
+    },
     getKinderen: function() {
       const out = []
-      // TODO
-      //for (let contact of this.contacts) {
-      //  out.push(contact.Full_Name);
-      //}
+      for (let contact of this.contacten) {
+        out.push(`${contact.voornaam} ${contact.naam}`);
+      }
       return out;
     },
-    addRow: function(catID) {
-      this.materiaal[catID]= [{
+    addRow: function(catID, catNaam) {
+      this.materiaal.push({
         aantal: 1,
-        kind: "",
+        ontvanger: "",
         naam: "",
+        maat: "",
         opmerking: "",
+        object: {ID: 0, naam: "", categorie: {ID: catID, naam: catNaam}},
         datum: new Date(),
-      }].concat(this.materiaal[catID])
+        print: true,
+      })
     },
     removeRow: function() {
       // TODO
@@ -274,23 +267,33 @@ export default {
     this.loading = true;
 
     const materiaalResponse = await materiaalService.lookUpNumber(this.id);
-    const klantResponse = await klantenService.lookUpNumber(this.id);
+    const klantResponse =  await klantenService.lookUpNumber(this.id);
+    this.contacten = await klantenService.getContacten(this.id);
+    const materiaalOpties = await materiaalService.getObjectOptions();
+
     // TODO: kinderen
 
+    for (let optie of materiaalOpties) {
+      if (!this.materiaalTypes[optie.categorie.naam]) {
+        this.materiaalTypes[optie.categorie.naam] = optie.categorie
+        this.materiaalTypes[optie.categorie.naam].opties = []
+      }
+      this.materiaalTypes[optie.categorie.naam].opties.push(optie.naam)
+    }
+
     this.klant = klantResponse;
-    this.info.opmerking = materiaalResponse.opmerking
+    this.opmerking = materiaalResponse.opmerking
       ? materiaalResponse.opmerking
       : "";
 
     this.huishoudenData = [];
-    for (let contact of this.contacts) {
-      console.log(contact);
+    for (let contact of this.contacten) {
+      // note to future self, you will regret this slice. I told you so!
       this.huishoudenData.push(
-        `${contact.Date_of_Birth} ${contact.Geslacht} - ${contact.Full_Name}`
+        `${contact.geboorteDatum.slice(0,10)} ${contact.geslacht} - ${contact.voornaam} ${contact.naam}`
       );
     }
     this.info.huishouden = this.huishoudenData.sort().join("\n");
-
     this.loading = false;
   }
 };
