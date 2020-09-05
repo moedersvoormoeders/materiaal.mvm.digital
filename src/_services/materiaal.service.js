@@ -9,13 +9,27 @@ const lookUpNumber = (mvmNummer) => {
     };
 
     return fetch(`${config.apiUrl}/v1/materiaal/klant/${mvmNummer}`, requestOptions).then(handleResponse);
-
 }
+
+const saveForNumber = (mvmNummer, data) => {
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            ...authHeader(),
+        },
+        body: JSON.stringify(data)
+    };
+
+    return fetch(`${config.apiUrl}/v1/materiaal/klant/${mvmNummer}`, requestOptions).then(handleResponse);
+}
+
 
 const getObjectOptions = () => {
     const requestOptions = {
         method: 'GET',
-        headers: authHeader()
+        headers: authHeader(),
     };
 
     return fetch(`${config.apiUrl}/v1/materiaal/objects`, requestOptions).then(handleResponse);
@@ -44,4 +58,5 @@ const handleResponse = (response) => {
 export const materiaalService = {
     lookUpNumber,
     getObjectOptions,
+    saveForNumber,
 };

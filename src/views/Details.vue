@@ -138,7 +138,7 @@
                           <multiselect v-model="item.ontvanger" :options="getKinderen()" placeholder="Selecteer een"></multiselect>
                         </td>
                         <td>
-                          <multiselect v-model="item.object.naam" :options="materiaalType.opties" placeholder="Selecteer een"></multiselect>
+                          <multiselect v-model="item.object" track-by="ID" label="naam" :options="materiaalType.opties" placeholder="Selecteer een"></multiselect>
                         </td>
                          <td v-if="materiaalType.opMaat">
                           <input
@@ -181,6 +181,7 @@
 <script>
 import { materiaalService } from "../_services/materiaal.service"
 import { klantenService } from "../_services/klanten.service"
+import * as moment from "moment"
 
 import Datepicker from "vuejs-datepicker";
 import Multiselect from "vue-multiselect";
@@ -197,7 +198,7 @@ export default {
       loading: true,
       originalData: "", //JSON stored here
       saving: false,
-      materiaal: [],
+      gekregen: [],
       opmerking: "",
       info: {},
       materiaalTypes: {},
@@ -210,11 +211,20 @@ export default {
     }
   },
   methods: {
+    validate: function () {
+      for (let gekregen of this.gekregen) {
+        if (!gekregen.object) {
+          throw new Error("item niet ingevuld")
+        }
+        gekregen.objectId = gekregen.object.ID
+        gekregen.datum = moment(new Date(gekregen.datum)).format("YYYY-MM-DDTHH:mm:ssZ") // damn you Go
+      }
+    },
     idSafeName: function(cat) {
       return cat.naam.replace(" ", "")
     },
     materiaalVoorCategorie: function(catNaam) {
-      return this.materiaal.filter(item => item.object.categorie.naam == catNaam)
+      return this.gekregen.filter(item => item.object.categorie.naam == catNaam)
     },
     getKinderen: function() {
       const out = []
@@ -224,7 +234,7 @@ export default {
       return out;
     },
     addRow: function(catID, catNaam) {
-      this.materiaal.push({
+      this.gekregen = [{
         aantal: 1,
         ontvanger: "",
         naam: "",
@@ -233,13 +243,34 @@ export default {
         object: {ID: 0, naam: "", categorie: {ID: catID, naam: catNaam}},
         datum: new Date(),
         print: true,
-      })
+      }].concat(this.gekregen)
     },
     removeRow: function(obj) {
-      this.materiaal = this.materiaal.filter(aObj => aObj != obj)
+      this.gekregen = this.gekregen.filter(aObj => aObj != obj)
+    },
+    save: async function () {
+      try {
+        this.validate()
+        const resp = await materiaalService.saveForNumber(this.klant.mvmNummer, { gekregen: this.gekregen, opmerking: this.opmerking })
+        this.$Simplert.open({
+          title: "Opgeslagen!",
+          message: resp.message,
+          type: "success",
+          customCloseBtnText: "Sluiten"
+        });
+        this.originalData = JSON.stringify({gekregen: this.gekregen, opmerking: this.opmerking});
+      }catch (e) {
+        this.$Simplert.open({
+          title: "Error bij opslaan!",
+          message: e,
+          type: "error",
+          customCloseBtnText: "Sluiten"
+        });
+      }
+
     },
     hasChanges: function() {
-      if (JSON.stringify({gekregen: this.materiaal, opmerking: this.opmerking}) != this.originalData) {
+      if (JSON.stringify({gekregen: this.gekregen, opmerking: this.opmerking}) != this.originalData) {
         return true;
       }
       return false;
@@ -269,17 +300,38 @@ export default {
   created: async function() {
     this.loading = true;
 
-    const materiaalResponse = await materiaalService.lookUpNumber(this.id);
-    const klantResponse =  await klantenService.lookUpNumber(this.id);
-    this.contacten = await klantenService.getContacten(this.id);
-    const materiaalOpties = await materiaalService.getObjectOptions();
+    let materiaalResponse;
+    let klantResponse;
+    let materiaalOpties;
+
+    try {
+      materiaalResponse = await materiaalService.lookUpNumber(this.id);
+      klantResponse=  await klantenService.lookUpNumber(this.id);
+      this.contacten = await klantenService.getContacten(this.id);
+      materiaalOpties = await materiaalService.getObjectOptions();
+    }catch (e) {
+      this.$Simplert.open({
+        title: "Error!",
+        message: e,
+        type: "error",
+        customCloseBtnText: "Sluiten"
+      });
+
+      return
+    }
+
+    if (materiaalResponse.gekregen) {
+      this.gekregen = materiaalResponse.gekregen
+    }
+
+    this.originalData = JSON.stringify({gekregen: materiaalResponse.gekregen, opmerking: materiaalResponse.opmerking});
 
     for (let optie of materiaalOpties) {
       if (!this.materiaalTypes[optie.categorie.naam]) {
         this.materiaalTypes[optie.categorie.naam] = optie.categorie
         this.materiaalTypes[optie.categorie.naam].opties = []
       }
-      this.materiaalTypes[optie.categorie.naam].opties.push(optie.naam)
+      this.materiaalTypes[optie.categorie.naam].opties.push(optie)
     }
 
     this.klant = klantResponse;
