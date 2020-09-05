@@ -2,26 +2,34 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Search from '../views/Search.vue'
 import Login from '../views/Login.vue'
+import Nav from '../views/Nav.vue'
 import Details from '../views/Details.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/search',
-    name: 'search',
-    component: Search
-  },
-  {
     path: '/login',
     name: 'login',
     component: Login
   },
   {
-    path: '/details/:id',
-    name: 'details',
-    component: Details,
-    props: true,
+    path: '/mvm',
+    name: 'nav',
+    component: Nav,
+    children: [
+      {
+        path: '/search',
+        name: 'search',
+        component: Search
+      },
+      {
+        path: '/details/:id',
+        name: 'details',
+        component: Details,
+        props: true,
+      },
+    ]
   },
 ]
 
