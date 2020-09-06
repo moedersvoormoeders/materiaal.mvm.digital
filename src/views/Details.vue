@@ -138,7 +138,7 @@
                           <multiselect v-model="item.ontvanger" :options="getKinderen()" placeholder="Selecteer een"></multiselect>
                         </td>
                         <td>
-                          <multiselect v-model="item.object" track-by="ID" label="naam" :options="materiaalType.opties" placeholder="Selecteer een"></multiselect>
+                          <multiselect v-model="item.object" track-by="naam" label="naam" :options="materiaalType.opties" placeholder="Selecteer een"></multiselect>
                         </td>
                          <td v-if="materiaalType.opMaat">
                           <input
@@ -258,7 +258,7 @@ export default {
           type: "success",
           customCloseBtnText: "Sluiten"
         });
-        this.originalData = JSON.stringify({gekregen: this.gekregen, opmerking: this.opmerking});
+        this.originalData = JSON.stringify({gekregen: this.gekregen, opmerking: this.opmerking}, getCircularReplacer());
       }catch (e) {
         this.$Simplert.open({
           title: "Error bij opslaan!",
@@ -270,7 +270,8 @@ export default {
 
     },
     hasChanges: function() {
-      if (JSON.stringify({gekregen: this.gekregen, opmerking: this.opmerking}) != this.originalData) {
+      console.log(this.gekregen)
+      if (JSON.stringify({gekregen: this.gekregen, opmerking: this.opmerking}, getCircularReplacer()) != this.originalData) {
         return true;
       }
       return false;
@@ -332,6 +333,7 @@ export default {
         this.materiaalTypes[optie.categorie.naam].opties = []
       }
       this.materiaalTypes[optie.categorie.naam].opties.push(optie)
+      console.log(this.materiaalTypes[optie.categorie.naam].opties)
     }
 
     this.klant = klantResponse;
@@ -349,6 +351,19 @@ export default {
     this.info.huishouden = this.huishoudenData.sort().join("\n");
     this.loading = false;
   }
+};
+
+const getCircularReplacer = () => {
+  const seen = new WeakSet();
+  return (key, value) => {
+    if (typeof value === "object" && value !== null) {
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
+    }
+    return value;
+  };
 };
 </script>
 

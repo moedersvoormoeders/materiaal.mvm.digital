@@ -19,7 +19,7 @@ const saveForNumber = (mvmNummer, data) => {
             'Content-Type': 'application/json',
             ...authHeader(),
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data, getCircularReplacer())
     };
 
     return fetch(`${config.apiUrl}/v1/materiaal/klant/${mvmNummer}`, requestOptions).then(handleResponse);
@@ -54,6 +54,19 @@ const handleResponse = (response) => {
         return data;
     });
 }
+
+const getCircularReplacer = () => {
+    const seen = new WeakSet();
+    return (key, value) => {
+        if (typeof value === "object" && value !== null) {
+            if (seen.has(value)) {
+                return;
+            }
+            seen.add(value);
+        }
+        return value;
+    };
+};
 
 export const materiaalService = {
     lookUpNumber,
