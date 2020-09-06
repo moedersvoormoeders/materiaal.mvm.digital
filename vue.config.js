@@ -6,7 +6,7 @@ module.exports = {
           // global app config object
           config: JSON.stringify({
               //apiUrl: 'https://api.mvm.digital'
-              apiUrl: 'http://localhost:8080',
+              apiUrl: process.env.APIURL? process.env.APIURL : 'http://localhost:8080',
           })
         },
         optimization: {
