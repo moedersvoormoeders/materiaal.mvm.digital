@@ -54,7 +54,7 @@
           <span :style="(klant.code || '').indexOf('NB') >= 0 ? 'color: red;' : ''">{{klant.code}}</span>
         </div>
         <div class="col-4">
-          <h5>Huishouden</h5>
+          <h5>Gezinsleden</h5>
           <pre>{{info.huishouden}}</pre>
         </div>
         <div class="col-4">
