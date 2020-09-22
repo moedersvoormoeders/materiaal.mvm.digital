@@ -53,6 +53,10 @@
           <h5>Code</h5>
           <span :style="(klant.code || '').indexOf('NB') >= 0 ? 'color: red;' : ''">{{klant.code}}</span>
         </div>
+        <div class="col-4 mb-3">
+          <h5>Classificatie</h5>
+          <span>{{klant.classificatie}}</span>
+        </div>
         <div class="col-4">
           <h5>Gezinsleden</h5>
           <pre>{{info.huishouden}}</pre>
@@ -60,12 +64,6 @@
         <div class="col-4">
           <h5>Opmerking</h5>
           <textarea class="form-control" v-model="opmerking" rows="2"></textarea>
-        </div>
-        <div class="col-4">
-          <h5>Totalen</h5>
-          <ul>
-            <li v-for="total in totals" v-bind:key="total.naam">{{total.naam}}: {{total.aantal}}</li>
-          </ul>
         </div>
       </div>
 
@@ -204,11 +202,6 @@ export default {
       materiaalTypes: {},
       contacten: [],
     };
-  },
-  computed: {
-    totals: function() {
-      return [];
-    }
   },
   methods: {
     validate: function () {
