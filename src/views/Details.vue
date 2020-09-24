@@ -245,6 +245,40 @@ export default {
     removeRow: function(obj) {
       this.gekregen = this.gekregen.filter(aObj => aObj != obj)
     },
+    print: async function () {
+      try {
+        await this.save()
+
+        let items = []
+
+        for (let gekregen in this.gekregen) {
+          if (gekregen.print) {
+            items.push({
+              object: gekregen.object.naam,
+              opmerking: gekregen.opmerking,
+              maat: gekregen.maat ? gekregen.maat.naam : null,
+              ontvanger: gekregen.ontvanger ? { naam: gekregen.ontvanger, geslacht: this.getGeslacht(gekregen.ontvanger) } : null
+            })
+          }
+        }
+
+        if (items.length < 1) {
+          throw new Error("Niets om te printen")
+        }
+
+        await sendPrint({
+          klant: this.klant,
+          items,
+        })
+      } catch (e) {
+          this.$Simplert.open({
+            title: "Error bij printen!",
+            message: e,
+            type: "error",
+            customCloseBtnText: "Sluiten"
+          });
+        }
+    },
     save: async function () {
       try {
         this.validate()
@@ -256,7 +290,7 @@ export default {
           customCloseBtnText: "Sluiten"
         });
         this.originalData = JSON.stringify({gekregen: this.gekregen, opmerking: this.opmerking}, getCircularReplacer());
-      }catch (e) {
+      } catch (e) {
         this.$Simplert.open({
           title: "Error bij opslaan!",
           message: e,
@@ -267,7 +301,6 @@ export default {
 
     },
     hasChanges: function() {
-      console.log(this.gekregen)
       if (JSON.stringify({gekregen: this.gekregen, opmerking: this.opmerking}, getCircularReplacer()) != this.originalData) {
         return true;
       }
@@ -293,6 +326,18 @@ export default {
         confirmFn();
       }
     }
+  },
+
+  getGeslacht: function (naam) {
+    // why is this function here...
+    // well turns out I spent so much designing the database
+    // without for one second even thinking about gender...
+    for (let contact of this.contacten) {
+      if (`${contact.voornaam} ${contact.naam}` == naam) {
+        return contact.geslacht
+      }
+    }
+    return "onbekend"
   },
 
   created: async function() {
@@ -362,6 +407,24 @@ const getCircularReplacer = () => {
     return value;
   };
 };
+
+// TODO: abstract away in a service
+async function sendPrint(data = {}) {
+  console.log(data)
+  const response = await fetch("https://onthaal.print.mvm.digital/print", {
+    method: 'POST',
+    mode: 'cors',
+    cache: 'no-cache',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    redirect: 'follow',
+    referrerPolicy: 'no-referrer',
+    body: JSON.stringify(data)
+  });
+  return await response.json();
+}
 </script>
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
