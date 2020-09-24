@@ -200,9 +200,19 @@ export default {
   methods: {
     validate: function () {
       for (let gekregen of this.gekregen) {
-        if (!gekregen.object) {
+        console.log(gekregen)
+        if (!gekregen.object || gekregen.object.ID <= 0) {
           throw new Error("item niet ingevuld")
         }
+
+        if (this.materiaalTypes[gekregen.object.categorie.naam].opMaat && (!gekregen.maat || !gekregen.maat.ID)) {
+          throw new Error("maat niet ingevuld")
+        }
+
+        if (this.materiaalTypes[gekregen.object.categorie.naam].perKind && !gekregen.ontvanger) {
+          throw new Error("ontvanger niet ingevuld")
+        }
+
         gekregen.objectId = gekregen.object.ID
         gekregen.datum = moment(new Date(gekregen.datum)).format("YYYY-MM-DDTHH:mm:ssZ") // damn you Go
       }
