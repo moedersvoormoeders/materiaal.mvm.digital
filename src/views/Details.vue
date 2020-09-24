@@ -335,7 +335,7 @@ export default {
         `${contact.geboorteDatum.slice(0,10)} ${contact.geslacht} - ${contact.voornaam} ${contact.naam}`
       );
     }
-    this.info.huishouden = this.huishoudenData.sort().join("\n");
+    this.info.huishouden = this.huishoudenData.sort().reverse().join("\n");
     this.loading = false;
   }
 };
