@@ -212,7 +212,9 @@ export default {
         if (this.materiaalTypes[gekregen.object.categorie.naam].perKind && !gekregen.ontvanger) {
           throw new Error("ontvanger niet ingevuld")
         }
-
+        if (gekregen.maat) {
+          gekregen.MaatID = gekregen.maat.ID
+        }
         gekregen.objectId = gekregen.object.ID
         gekregen.datum = moment(new Date(gekregen.datum)).format("YYYY-MM-DDTHH:mm:ssZ") // damn you Go
       }
