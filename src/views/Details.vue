@@ -40,22 +40,22 @@
         </div>
       </div>
       <h3>Info</h3>
-      <div class="row mb-3">
+      <div class="row mb-3 materiaal-info">
         <div class="col-4 mb-3">
           <h5>Naam</h5>
-          {{klant.voornaam}} {{klant.naam}}
+          <p class="info">{{klant.voornaam}} {{klant.naam}}</p>
         </div>
         <div class="col-4 mb-3">
           <h5>MVM Nummer</h5>
-          {{klant.mvmNummer}}
+          <p class="info">{{klant.mvmNummer}}</p>
         </div>
         <div class="col-4 mb-3">
           <h5>Code</h5>
-          <span :style="(klant.code || '').indexOf('NB') >= 0 ? 'color: red;' : ''">{{klant.code}}</span>
+          <p class="info"><span :style="(klant.code || '').indexOf('NB') >= 0 ? 'color: red;' : ''">{{klant.code}}</span></p>
         </div>
         <div class="col-4 mb-3">
           <h5>Classificatie</h5>
-          <span>{{klant.classificatie}}</span>
+          <p class="info">{{klant.classificatie}}</p>
         </div>
         <div class="col-4">
           <h5>Gezinsleden</h5>
@@ -363,6 +363,15 @@ ul {
 .multiselect__element {
   display: block;
   background-color: #e4f1e4;
+}
+
+.materiaal-info h5 {
+  font-size: 1.1rem;
+}
+
+.info {
+  font-weight: bolder;
+  font-size: 1.4rem;
 }
 
 /* this is a pain */
