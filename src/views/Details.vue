@@ -360,6 +360,11 @@ ul {
   padding-left: 20px;
 }
 
+.multiselect__element {
+  display: block;
+  background-color: #e4f1e4;
+}
+
 /* this is a pain */
 .vdp-datepicker {
   width: 150px;
