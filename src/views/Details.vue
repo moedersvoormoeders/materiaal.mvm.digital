@@ -247,13 +247,25 @@ export default {
     removeRow: function(obj) {
       this.gekregen = this.gekregen.filter(aObj => aObj != obj)
     },
+    getGeslacht: function (naam) {
+      // why is this function here...
+      // well turns out I spent so much designing the database
+      // without for one second even thinking about gender...
+      for (let contact of this.contacten) {
+        if (`${contact.voornaam} ${contact.naam}` == naam) {
+          return contact.geslacht
+        }
+      }
+      return "onbekend"
+    },
     print: async function () {
       try {
         await this.save()
 
         let items = []
 
-        for (let gekregen in this.gekregen) {
+        for (let gekregen of this.gekregen) {
+          console.log(gekregen)
           if (gekregen.print) {
             items.push({
               object: gekregen.object.naam,
@@ -328,18 +340,6 @@ export default {
         confirmFn();
       }
     }
-  },
-
-  getGeslacht: function (naam) {
-    // why is this function here...
-    // well turns out I spent so much designing the database
-    // without for one second even thinking about gender...
-    for (let contact of this.contacten) {
-      if (`${contact.voornaam} ${contact.naam}` == naam) {
-        return contact.geslacht
-      }
-    }
-    return "onbekend"
   },
 
   created: async function() {
