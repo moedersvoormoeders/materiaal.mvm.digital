@@ -304,6 +304,11 @@ export default {
           customCloseBtnText: "Sluiten"
         });
         this.originalData = JSON.stringify({gekregen: this.gekregen, opmerking: this.opmerking}, getCircularReplacer());
+
+        const materiaalResponse = await materiaalService.lookUpNumber(this.id);
+        if (materiaalResponse.gekregen && materiaalResponse.gekregen.length != this.gekregen.length) {
+          return this.save()
+        }
       } catch (e) {
         this.$Simplert.open({
           title: "Error bij opslaan!",
