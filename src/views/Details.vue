@@ -136,10 +136,10 @@
                           <multiselect v-model="item.ontvanger" :options="getKinderen()" placeholder="Selecteer een"></multiselect>
                         </td>
                         <td>
-                          <multiselect v-model="item.object" track-by="naam" label="naam" :options="materiaalType.opties" placeholder="Selecteer een" @select="item.maat=null"></multiselect>
+                          <multiselect v-model="item.object" track-by="naam" label="naam" :options="materiaalType.opties" placeholder="Selecteer een" @select="item.maat=null" :allow-empty="false" deselect-label=""></multiselect>
                         </td>
                          <td v-if="materiaalType.opMaat">
-                           <multiselect v-model="item.maat" track-by="naam" label="naam" :options="(item.object || []).maten || []" placeholder="Selecteer een"></multiselect>
+                           <multiselect v-model="item.maat" track-by="naam" label="naam" :options="(item.object || []).maten || []" placeholder="Selecteer een" @remove="item.maat=null" :allow-empty="false" deselect-label=""></multiselect>
                         <td>
                           <input
                             v-model="item.opmerking"
