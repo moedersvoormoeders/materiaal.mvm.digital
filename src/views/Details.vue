@@ -260,6 +260,7 @@ export default {
     },
     print: async function () {
       try {
+        this.validate()
         await this.save()
 
         let items = []
