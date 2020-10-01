@@ -360,6 +360,11 @@ export default {
       klantResponse=  await klantenService.lookUpNumber(this.id);
       this.contacten = await klantenService.getContacten(this.id);
       materiaalOpties = await materiaalService.getObjectOptions();
+
+      // fix a nil response on contacts
+      if (!this.contacten) {
+        this.contacten = []
+      }
     }catch (e) {
       this.$Simplert.open({
         title: "Error!",
