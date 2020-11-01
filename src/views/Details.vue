@@ -136,7 +136,7 @@
                           <multiselect v-model="item.ontvanger" :options="getKinderen()" placeholder="Selecteer een"></multiselect>
                         </td>
                         <td>
-                          <multiselect v-model="item.object" track-by="naam" label="naam" :options="materiaalType.opties" placeholder="Selecteer een" @select="item.maat=null" :allow-empty="false" deselect-label=""></multiselect>
+                          <multiselect v-model="item.object" track-by="naam" label="naam" :options="materiaalType.opties" placeholder="Selecteer een" @select="selectedNewItem($event, item)" :allow-empty="false" deselect-label=""></multiselect>
                         </td>
                          <td v-if="materiaalType.opMaat">
                            <multiselect v-model="item.maat" track-by="naam" label="naam" :options="(item.object || []).maten || []" placeholder="Selecteer een" @remove="item.maat=null" :allow-empty="false" deselect-label=""></multiselect>
@@ -231,6 +231,13 @@ export default {
         out.push(`${contact.voornaam} ${contact.naam}`);
       }
       return out;
+    },
+    selectedNewItem: function (selectedOption, item) {
+      item.maat = null
+      console.log(selectedOption)
+      if (selectedOption && selectedOption.maten && selectedOption.maten.length == 1 ) {
+        item.maat = selectedOption.maten[0]
+      }
     },
     addRow: function(catID, catNaam) {
       this.gekregen = [{
@@ -360,6 +367,11 @@ export default {
       klantResponse=  await klantenService.lookUpNumber(this.id);
       this.contacten = await klantenService.getContacten(this.id);
       materiaalOpties = await materiaalService.getObjectOptions();
+
+      // fix a nil response on contacts
+      if (!this.contacten) {
+        this.contacten = []
+      }
     }catch (e) {
       this.$Simplert.open({
         title: "Error!",
