@@ -130,7 +130,7 @@
                           <datepicker :format="'yyyy-MM-dd'" v-model="item.datum"></datepicker>
                         </td>
                         <td style="width: 70px;">
-                          <input v-model="item.aantal" class="form-control" type="number" min="1" style="width: 60px;"/>
+                          <input v-model.number="item.aantal" class="form-control" type="number" min="1" style="width: 60px;"/>
                         </td>
                         <td v-if="materiaalType.perKind">
                           <multiselect v-model="item.ontvanger" :options="getKinderen()" placeholder="Selecteer een"></multiselect>
@@ -304,6 +304,7 @@ export default {
     save: async function () {
       try {
         this.validate()
+        console.log(this.gekregen)
         const resp = await materiaalService.saveForNumber(this.klant.mvmNummer, { gekregen: this.gekregen, opmerking: this.opmerking })
         this.$Simplert.open({
           title: "Opgeslagen!",

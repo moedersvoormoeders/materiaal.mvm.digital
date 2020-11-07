@@ -27,7 +27,7 @@
                 <input type="password" class="form-control" name="password" id="password" v-model="password" placeholder="Wachtwoord">
               </div>
             </div>
-            <button v-on:click="login()" class="btn btn-primary" ><i class="fas fa-sign-in-alt"></i> Login</button>
+            <button class="btn btn-primary" :disabled="submitted" type="submit" ><i class="fas fa-sign-in-alt"></i> Login</button>
           </form>
         </div>
       </div>
@@ -51,12 +51,6 @@ export default {
     };
   },
 
-  computed: {
-    loggingIn: function () {
-      return this.$store.state.authentication.status.loggingIn;
-    },
-  },
-
   methods: {
     login: async function () {
       this.submitted = true;
@@ -64,7 +58,9 @@ export default {
         try {
           await authService.login(this.username, this.password)
           this.$router.push("/search")
+          this.submitted = false;
         } catch(e) {
+          this.submitted = false;
           this.$Simplert.open({
             title: "Login error!",
             message: e,
